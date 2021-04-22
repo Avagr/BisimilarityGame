@@ -3,4 +3,4 @@ project(BisimilarityGame)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(BisimilarityGame src/petrinets/petrinet.h src/petrinets/petrinet.cpp src/petrinets/prooftree.cpp src/petrinets/prooftree.h main.cpp)
+add_executable(BisimilarityGame lib/src/petrinets/petrinet.h lib/src/petrinets/petrinet.cpp lib/src/petrinets/prooftree.cpp lib/src/petrinets/prooftree.h lib/main.cpp)
