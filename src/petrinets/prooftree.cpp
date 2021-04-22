@@ -2,7 +2,8 @@
 #include "prooftree.h"
 
 ProofTree::ProofTree(Multiset first, Multiset second, PetriNet* net) : petri_net_(net) {
-    root_ = std::make_unique<Node>(std::move(first), std::move(second), petri_net_->transitions);
+    root_ = std::make_unique<Node>(std::move(first), std::move(second), petri_net_->transitions,
+                                   nullptr, nullptr, 0);
 }
 
 bool ProofTree::CheckBisimilarity() {
@@ -16,13 +17,13 @@ bool ProofTree::Expand(Node* node) {
     while (true) {
         node->children.clear();
         for (auto&& trans : petri_net_->transitions) {
-            auto rs_child =
-                DeltaChild(trans.get(), &node->first, &node->second, &node->rs_used[trans.get()]);
+            auto rs_child = DeltaChild(trans.get(), &node->first, &node->second,
+                                       &node->rs_used[trans.get()], 1);
             if (rs_child == nullptr) {
                 return false;
             }
-            auto sr_child =
-                DeltaChild(trans.get(), &node->second, &node->first, &node->sr_used[trans.get()]);
+            auto sr_child = DeltaChild(trans.get(), &node->second, &node->first,
+                                       &node->sr_used[trans.get()], -1);
             if (sr_child == nullptr) {
                 return false;
             }
@@ -40,19 +41,22 @@ bool ProofTree::Expand(Node* node) {
 }
 
 bool ProofTree::Reduce(Node* node) {
-    int place_num = petri_net_->GetPlaceNum();
+    size_t place_num = petri_net_->GetPlaceNum();
     bool reduced = true;
     while (reduced) {
+        if (node->first == node->second) {
+            return true;
+        }
         Node* parent = node->parent;
         reduced = false;
-        Multiset intersect_r0(place_num), rem_s1(place_num), rem_s1_tick(place_num),
-            rem_r1_tick(place_num);
         while (parent != nullptr) {
+            Multiset intersect_r0(place_num), rem_s1(place_num), rem_s1_tick(place_num),
+                rem_r1_tick(place_num);
             if (parent->PartialOrder(node, &intersect_r0, &rem_s1, &rem_s1_tick, &rem_r1_tick)) {
                 node->AddChild(std::make_unique<Node>(
                     node->first,
                     Multiset::ReduceChild(intersect_r0, rem_s1_tick, rem_s1, rem_r1_tick),
-                    petri_net_->transitions));
+                    petri_net_->transitions, nullptr, nullptr, 0));
                 reduced = true;
                 node = node->children.back().get();
                 break;
@@ -65,27 +69,31 @@ bool ProofTree::Reduce(Node* node) {
 
 inline unique_ptr<ProofTree::Node> ProofTree::DeltaChild(const Transition* delta,
                                                          const Multiset* first,
-                                                         const Multiset* second, int* counter) {
-    auto candidates = *petri_net_->label_map[delta->label];
+                                                         const Multiset* second, int* counter,
+                                                         int rs_order) {
+    auto candidates = &(petri_net_->label_map[delta->label]);
     unique_ptr<Node> res = nullptr;
-    for (; *counter < candidates.size(); (*counter)++) {
-        auto trans = candidates[*counter];
-        if (trans != delta) {
-            Multiset r_set = Multiset::WeakTransition(first, delta);
-            Multiset s_set(petri_net_->GetPlaceNum());
-            if (!Multiset::MirrorTransition(second, first, delta, trans, &s_set)) {
-                continue;
-            }
-            res = std::make_unique<Node>(r_set, s_set, petri_net_->transitions);
-            break;
+    for (; *counter < candidates->size(); (*counter)++) {
+        auto gamma = (*candidates)[*counter];
+        Multiset r_set = Multiset::WeakTransition(first, delta);
+        Multiset s_set(petri_net_->GetPlaceNum());
+        if (!Multiset::MirrorTransition(second, first, delta, gamma, &s_set)) {
+            continue;
         }
+        res = std::make_unique<Node>(r_set, s_set, petri_net_->transitions, delta, gamma, rs_order);
+        break;
     }
     return res;
 }
 
 ProofTree::Node::Node(Multiset first, Multiset second,
-                      const std::vector<unique_ptr<Transition>>& trans)
-    : first(std::move(first)), second(std::move(second)) {
+                      const std::vector<unique_ptr<Transition>>& trans, const Transition* delta,
+                      const Transition* gamma, int rs_order)
+    : first(std::move(first)),
+      second(std::move(second)),
+      delta_used(delta),
+      gamma_used(gamma),
+      order_used(rs_order) {
     for (auto&& t : trans) {
         rs_used[t.get()] = 0;
         sr_used[t.get()] = 0;
@@ -110,7 +118,7 @@ inline bool ProofTree::Node::PartialOrder(ProofTree::Node* other, Multiset* othe
     if (other->first == other->second) {
         return false;
     }
-    int n = this->first.Length();
+    size_t n = this->first.Length();
     Multiset other_first_rem(n);
     Multiset this_intersect =
         Multiset::SplitIntersection(first, second, this_first_rem, this_second_rem);
@@ -119,17 +127,3 @@ inline bool ProofTree::Node::PartialOrder(ProofTree::Node* other, Multiset* othe
     return this_intersect.SubsetOf(*other_intersect) && this_first_rem->SubsetOf(other_first_rem) &&
            this_second_rem->SubsetOf(*other_second_rem);
 }
-
-// int main() {
-//     Multiset first(4), second(4);
-//     first.arr_[0] = 1;
-//     first.arr_[1] = 2;
-//     first.arr_[2] = 0;
-//     first.arr_[3] = 0;
-//     second.arr_[0] = 1;
-//     second.arr_[1] = 2;
-//     second.arr_[2] = 0;
-//     second.arr_[3] = 0;
-//     ProofTree tree(first, second, nullptr);
-//     std::cout << tree.CheckBisimilarity();
-// };

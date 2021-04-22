@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <set>
-#include "multiset.h"
 #include "petrinet.h"
 
 using std::unique_ptr;
@@ -25,7 +24,8 @@ private:
      * Node of the proof tree
      */
     struct Node {
-        Node(Multiset first, Multiset second, const std::vector<unique_ptr<Transition>>& trans);
+        Node(Multiset first, Multiset second, const std::vector<unique_ptr<Transition>>& trans,
+             const Transition* delta, const Transition* gamma, int rs_order);
 
         /**
          * Adds a child to the node
@@ -46,6 +46,9 @@ private:
         Multiset first, second;
         std::vector<unique_ptr<Node>> children;
         std::map<Transition*, int> rs_used, sr_used;
+        const Transition* delta_used = nullptr;
+        const Transition* gamma_used = nullptr;
+        int order_used = 0;  // 1 - rs, 0 - none, -1 - sr
     };
 
     bool Expand(Node* node);
@@ -60,7 +63,7 @@ private:
      * @return nullptr if the set of children is empty, the child node otherwise
      */
     unique_ptr<Node> DeltaChild(const Transition* delta, const Multiset* first,
-                                const Multiset* second, int* counter);
+                                const Multiset* second, int* counter, int rs_order);
 
     unique_ptr<Node> root_;
 
