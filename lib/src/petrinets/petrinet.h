@@ -14,13 +14,18 @@ class Multiset {
 public:
     explicit Multiset(size_t place_num);
 
-    // Equality Const
+    explicit Multiset(std::vector<int> arr);
+
     bool operator==(const Multiset& other) const;
 
     static Multiset ReduceChild(const Multiset& intersect, const Multiset& other_second_rem,
                                 const Multiset& second_rem, const Multiset& first_rem);
 
-    // Is subset Const
+    /**
+     * Checks if the current multiset is a subset of a given one
+     * @param set a given multiset
+     * @return true if this multiset is a subset of the given one, false otherwise
+     */
     [[nodiscard]] inline bool SubsetOf(const Multiset& set) const {
         if (power_ > set.power_) {
             return false;
@@ -58,29 +63,31 @@ public:
 
     [[nodiscard]] size_t Length() const;
 
-    std::vector<int> arr_;  // todo: switch back
-
 private:
-    int64_t power_ = 0;
+    std::vector<int> arr_;
+    uint64_t power_ = 0;
 };
 
 /**
  * A single transition in a Petri Net
  */
 struct Transition {
-    Transition(std::string label, Multiset before, Multiset after);
-
-    std::string label;
+    Transition(std::string id, std::string label, Multiset before, Multiset after);
+    std::string label, id;
     Multiset before, after;
 };
 
 class PetriNet {
 public:
+    explicit PetriNet(
+        const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>&
+            trans_list);
+
     std::map<std::string, std::vector<Transition*>> label_map;
     std::vector<std::unique_ptr<Transition>> transitions;
 
     [[nodiscard]] size_t GetPlaceNum() const;
-    size_t place_num_;  // todo
 
 private:
+    size_t place_num_ = 0;
 };

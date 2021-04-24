@@ -1,5 +1,7 @@
 #include "petrinet.h"
 
+#include <utility>
+
 Multiset::Multiset(size_t place_num) : arr_(place_num) {
 }
 
@@ -68,9 +70,33 @@ Multiset Multiset::ReduceChild(const Multiset& intersect, const Multiset& other_
     }
     return res;
 }
+Multiset::Multiset(std::vector<int> arr) : arr_(std::move(arr)) {
+    power_ = 0;
+    for (int x : arr_) {
+        power_ += x;
+    }
+}
 
-Transition::Transition(std::string label, Multiset before, Multiset after)
-    : label(std::move(label)), before(std::move(before)), after(std::move(after)) {
+Transition::Transition(std::string id, std::string label, Multiset before, Multiset after)
+    : label(std::move(label)),
+      id(std::move(id)),
+      before(std::move(before)),
+      after(std::move(after)) {
+}
+
+PetriNet::PetriNet(
+    const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>&
+        trans_list) {
+    for (auto&& trans : trans_list) {
+        Multiset before(std::get<2>(trans));
+        Multiset after(std::get<3>(trans));
+        place_num_ = before.Length();
+        transitions.push_back(
+            std::make_unique<Transition>(std::get<0>(trans), std::get<1>(trans), before, after));
+    }
+    for (auto&& trans : transitions) {
+        label_map[trans->label].push_back(trans.get());
+    }
 }
 
 size_t PetriNet::GetPlaceNum() const {

@@ -1,3 +1,6 @@
 # Project exclude paths
 /cmake-build-debug/
 /ui/venv/
+__pycache__/
+*.py[cod]
+*$py.class
