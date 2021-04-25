@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <sstream>
 
 class Transition;
 
@@ -58,10 +59,12 @@ public:
     static bool MirrorTransition(const Multiset* init, const Multiset* prev,
                                  const Transition* delta, const Transition* gamma, Multiset* res);
 
-    static Multiset SplitIntersection(const Multiset& left, const Multiset& right,
+    static Multiset SplitIntersection(const Multiset* left, const Multiset* right,
                                       Multiset* left_rem, Multiset* right_rem);
 
     [[nodiscard]] size_t Length() const;
+
+    [[nodiscard]] std::string ToString() const;
 
 private:
     std::vector<int> arr_;

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(bisimilarity_checker VERSION "1.0")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-m64 -O3 ")
+set(CMAKE_CXX_FLAGS "-O3")
 
 if (SKBUILD)
     execute_process(
@@ -20,4 +20,4 @@ target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
 install(TARGETS _core DESTINATION .)
 
-#add_executable(BisimilarityGame lib/src/petrinets/petrinet.h lib/src/petrinets/petrinet.cpp lib/src/petrinets/prooftree.cpp lib/src/petrinets/prooftree.h lib/main.cpp)
+add_executable(BisimilarityGame src/petrinets/petrinet.h src/petrinets/petrinet.cpp src/petrinets/prooftree.cpp src/petrinets/prooftree.h main.cpp)

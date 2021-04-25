@@ -2,6 +2,9 @@
 
 #include <memory>
 #include <set>
+#include <fstream>
+#include <stack>
+#include <queue>
 #include "petrinet.h"
 
 using std::unique_ptr;
@@ -19,6 +22,26 @@ public:
      */
     bool CheckBisimilarity();
 
+    void PrintTree(const std::string& path) const {
+        std::ofstream out{path};
+        std::stack<std::pair<Node*, int>> pipe;
+        //        std::queue<std::pair<Node*, int>> pipe;
+        pipe.emplace(root_.get(), 0);
+        while (!pipe.empty()) {
+            auto x = pipe.top();
+            //            auto x = pipe.front();
+            pipe.pop();
+            for (int i = 0; i < x.second; ++i) {
+                out << '\t';
+            }
+            out << x.first->first.ToString() << ' ' << x.first->second.ToString() << '\n';
+            for (auto&& child : x.first->children) {
+                pipe.emplace(child.get(), x.second + 1);
+            }
+        }
+        out.close();
+    }
+
 private:
     /**
      * Node of the proof tree
@@ -35,12 +58,13 @@ private:
 
         /**
          * Computes partial ordering for REDUCE
-         * @param other other node to check the ordering
-         * @return true if the node is less or equals to the other, false if the node is bigger or
+         * @return true if the node is greater than the other, false if the node is lesser or
          * incomparable
          */
-        bool PartialOrder(Node* other, Multiset* other_intersect, Multiset* other_second_rem,
-                          Multiset* this_second_rem, Multiset* this_first_rem) const;
+        bool PartialOrder(Multiset* other_first, Multiset* other_second, Multiset* this_intersect,
+                          Multiset* other_intersect, Multiset* this_first_rem,
+                          Multiset* this_second_rem, Multiset* other_first_rem,
+                          Multiset* other_second_rem) const;
 
         Node* parent = nullptr;
         Multiset first, second;
@@ -51,9 +75,9 @@ private:
         int order_used = 0;  // 1 - rs, 0 - none, -1 - sr
     };
 
-    bool Expand(Node* node);
+    bool Expand(Node* node, int depth);
 
-    bool Reduce(Node* node);
+    bool Reduce(Node* node, int depth);
 
     /**
      * Finds a random delta0child of node (first, second)

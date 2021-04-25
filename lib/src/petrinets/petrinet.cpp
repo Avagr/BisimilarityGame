@@ -41,15 +41,15 @@ bool Multiset::operator==(const Multiset& other) const {
     return true;
 }
 
-Multiset Multiset::SplitIntersection(const Multiset& left, const Multiset& right,
+Multiset Multiset::SplitIntersection(const Multiset* left, const Multiset* right,
                                      Multiset* left_rem, Multiset* right_rem) {
-    Multiset intersect(left.Length());
-    for (int i = 0; i < left.Length(); ++i) {
-        intersect.arr_[i] = std::min(left.arr_[i], right.arr_[i]);
+    Multiset intersect(left->Length());
+    for (int i = 0; i < left->Length(); ++i) {
+        intersect.arr_[i] = std::min(left->arr_[i], right->arr_[i]);
         intersect.power_ += intersect.arr_[i];
-        left_rem->arr_[i] = left.arr_[i] - intersect.arr_[i];
+        left_rem->arr_[i] = left->arr_[i] - intersect.arr_[i];
         left_rem->power_ += left_rem->arr_[i];
-        right_rem->arr_[i] = right.arr_[i] - intersect.arr_[i];
+        right_rem->arr_[i] = right->arr_[i] - intersect.arr_[i];
         right_rem->power_ += right_rem->arr_[i];
     }
     return intersect;
@@ -75,6 +75,18 @@ Multiset::Multiset(std::vector<int> arr) : arr_(std::move(arr)) {
     for (int x : arr_) {
         power_ += x;
     }
+}
+std::string Multiset::ToString() const {
+    std::stringstream builder;
+    builder << '(';
+    for (int i = 0; i < arr_.size(); ++i) {
+        builder << arr_[i];
+        if (i != arr_.size() - 1) {
+            builder << ' ';
+        }
+    }
+    builder << ')';
+    return builder.str();
 }
 
 Transition::Transition(std::string id, std::string label, Multiset before, Multiset after)
