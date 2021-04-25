@@ -15,7 +15,7 @@ bool CheckBisimilarity(
     return tree.CheckBisimilarity();
 }
 
-PYBIND11_MODULE(bisimilarity, module) {
+PYBIND11_MODULE(_core, module) {
     module.doc() = "Binding for the main bisimilarity checking function";
     module.def("check_bisimilarity", &CheckBisimilarity,
                "A function that checks the bisimilarity of two resources on a given Petri net");

@@ -3,9 +3,8 @@ requires = [
     "setuptools>=52",
     "wheel",
     "pybind11>=2.6.0",
-    "PyQt5>=5.15.0",
-    "PyQt5-sip>=12.8.0",
-    "PyQt5-Qt5>=5.15.0",
+    "cmake",
+    "scikit-build",
 ]
 
 build-backend = "setuptools.build_meta"
