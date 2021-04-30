@@ -5,9 +5,9 @@ from PyQt5.QtWidgets import QApplication
 from .mainwindow import MainWindow
 
 
-def run():
+def run(path: str):
     app = QApplication([])
-    _ = MainWindow()
+    _ = MainWindow(path)
     sys.exit(app.exec_())
 
 # import bisimilarity_checker
