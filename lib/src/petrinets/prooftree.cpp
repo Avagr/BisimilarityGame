@@ -150,6 +150,7 @@ void ProofTree::TreeTraversal(std::vector<Node*>* nodes,
         nodes->push_back(current);
         if (record_basis_) {
             to_remove.clear();
+            bool insert = true;
             for (auto&& el : basis_) {
                 m1.Reset(), m2.Reset(), m3.Reset(), m4.Reset(), m5.Reset(), m6.Reset();
                 bool direct = el->GreaterThan(&current->first, &current->second, &m1, &m2, &m3, &m4,
@@ -162,12 +163,21 @@ void ProofTree::TreeTraversal(std::vector<Node*>* nodes,
                 }
                 if (direct || reverse) {
                     to_remove.insert(el);
+                } else {
+                    m1.Reset(), m2.Reset(), m3.Reset(), m4.Reset(), m5.Reset(), m6.Reset();
+                    direct =
+                        current->GreaterThan(&el->first, &el->second, &m1, &m2, &m3, &m4, &m5, &m6);
+                    if (direct) {
+                        insert = false;
+                    }
                 }
             }
             for (auto&& el : to_remove) {
                 basis_.erase(el);
             }
-            basis_.insert(current);
+            if (insert) {
+                basis_.insert(current);
+            }
         }
         stack.pop();
         for (auto&& child : current->children) {
