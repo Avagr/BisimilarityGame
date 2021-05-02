@@ -1,5 +1,6 @@
+import bisimilarity_checker
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, QObject, pyqtSlot
 from PyQt5.QtGui import QFont, QIntValidator
 from PyQt5.QtWidgets import QMessageBox, QLabel, QFrame, QTableWidget, QItemDelegate, QWidget, QStyleOptionViewItem, \
     QLineEdit, QFileDialog
@@ -64,9 +65,32 @@ def get_file(file_filter: str, base_path: str, read: bool) -> str:
     dlg.setAcceptMode(QFileDialog.AcceptOpen if read else QFileDialog.AcceptSave)
     dlg.setNameFilters([file_filter])
     dlg.selectNameFilter(file_filter)
-    dlg.setDirectory(base_path[:-2])
+    dlg.setDirectory(base_path[:-3])
     dlg.exec_()
-    return dlg.selectedFiles()[0] if len(dlg.selectedFiles()) > 0 else None
+    return dlg.selectedFiles()[0] if len(dlg.selectedFiles()) > 0 and dlg.selectedFiles()[
+        0] != dlg.directory().path() else None
+
+
+class Checker(QObject):
+    """
+    Helper for async bisimilarity checking
+    """
+    finished = pyqtSignal()
+
+    def __init__(self, r, s, trans, basis, path):
+        super().__init__()
+        self.r_res = r
+        self.s_res = s
+        self.transitions = trans
+        self.check_basis = basis
+        self.path = path
+
+    @pyqtSlot()
+    def run_algorithm(self):
+        self.result = bisimilarity_checker.check_bisimilarity(self.r_res, self.s_res, self.transitions,
+                                                              self.check_basis,
+                                                              self.path)
+        self.finished.emit()
 
 
 class NumberDelegate(QItemDelegate):

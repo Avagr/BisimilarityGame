@@ -30,15 +30,15 @@ def read_net(path: str) -> dict[str, dict]:
         for node in trans.childNodes:
             if node.nodeName == 'name':
                 name = node.getElementsByTagName('text')[0].firstChild.data
-        transitions[trans_id] = ([0] * len(place_map.keys()), [0] * len(place_map.keys()), name)
+        transitions[trans_id] = (name, [0] * len(place_map.keys()), [0] * len(place_map.keys()))
     # Parsing arcs
     for arc in doc.getElementsByTagName('arc'):
         source = arc.attributes['source'].value
         target = arc.attributes['target'].value
         if source in place_map and target in transitions:
-            transitions[target][0][place_map[source]] += 1
+            transitions[target][1][place_map[source]] += 1
         elif target in place_map and source in transitions:
-            transitions[source][1][place_map[target]] += 1
+            transitions[source][2][place_map[target]] += 1
         else:
             raise KeyError('Invalid arc source and/or target')
     return {"transitions": transitions, "place_id": place_map}
@@ -80,7 +80,7 @@ def write_resources(path: str, tags: Iterable[str], r_res: Iterable[str], s_res:
     :param r_res: first list of resources
     :param s_res: second list of resources
     """
-    if path[-4:] != '.csv':
+    if len(path) < 5 or path[-4:] != '.csv':
         path += '.csv'
     with open(path, 'w', newline='') as file:
         writer = csv.writer(file)

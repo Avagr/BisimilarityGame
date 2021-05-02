@@ -3,14 +3,14 @@ import sys
 from typing import List
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QApplication, QPushButton, QMessageBox, QTreeView,
                              QCheckBox, QTableWidgetItem)
 from qt_material import apply_stylesheet
 
 from qtui.io.petri import read_net, read_resources, write_resources
-from qtui.widgetutils import show_message, create_label, QVLine, QHLine, create_table, get_file
+from qtui.widgetutils import show_message, create_label, QVLine, QHLine, create_table, get_file, Checker
 
 sep: str = os.path.sep
 
@@ -131,10 +131,13 @@ class MainWindow(QWidget):
         # Start button
         start_layout = QVBoxLayout()
         start_layout.setContentsMargins(100, 10, 100, 10)
+        check_hint_label = create_label("You will need to select the file for results", font_size=10)
+        self.togglable_elements.append(check_hint_label)
         start_button = QPushButton("CHECK BISIMILARITY")
-        # todo: bind
+        start_button.clicked.connect(self.run_algorithm)
         self.togglable_elements.append(start_button)
         start_layout.addWidget(start_button)
+        left_layout.addWidget(check_hint_label)
         left_layout.addLayout(start_layout, 100)
         left_layout.addWidget(QHLine(), 3)
 
@@ -199,6 +202,33 @@ class MainWindow(QWidget):
             write_resources(resource_path, self.labels, self.r_table(), self.s_table())
         except (OSError, IOError, FileExistsError, FileNotFoundError) as err:
             show_message(QMessageBox.Warning, "There was an error while exporting the resources:", str(err))
+
+    def run_algorithm(self):
+        """
+        Runs the algorithm itself after getting a path to save the tree to
+        """
+        tree_path = get_file("GraphML file (*.graphml)", self.base_path, read=False)
+        if not tree_path:
+            return
+        if len(tree_path) < 9 or tree_path[-8:] != '.graphml':
+            tree_path += '.graphml'
+        transitions = [(key, *val) for key, val in self.net['transitions'].items()]
+        self.setDisabled(True)
+        self.checker = Checker(list(map(int, self.s_table())), list(map(int, self.r_table())),
+                               transitions, self.basis_box.isChecked(), tree_path)
+        self.check_thread = QThread()
+        self.checker.moveToThread(self.check_thread)
+        self.checker.finished.connect(self.check_thread.quit)
+        self.check_thread.started.connect(self.checker.run_algorithm)
+        self.check_thread.finished.connect(self.show_tree)
+        self.check_thread.start()
+
+    def show_tree(self):
+        """
+        Handles the ending of the algorithm runtime and subsequent tree loading
+        """
+        self.setDisabled(False)
+        print(self.checker.result)
 
     def switch_theme(self):
         """
