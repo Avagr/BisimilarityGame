@@ -1,5 +1,4 @@
 #include "petrinet.h"
-
 #include <utility>
 
 Multiset::Multiset(size_t place_num) : arr_(place_num) {
@@ -78,15 +77,22 @@ Multiset::Multiset(std::vector<int> arr) : arr_(std::move(arr)) {
 }
 std::string Multiset::ToString() const {
     std::stringstream builder;
-    builder << '(';
+    builder << '[';
     for (int i = 0; i < arr_.size(); ++i) {
         builder << arr_[i];
         if (i != arr_.size() - 1) {
-            builder << ' ';
+            builder << ", ";
         }
     }
-    builder << ')';
+    builder << ']';
     return builder.str();
+}
+Multiset Multiset::Difference(const Multiset& other) const {
+    auto res = Multiset(arr_.size());
+    for (int i = 0; i < arr_.size(); ++i) {
+        res.arr_[i] = arr_[i] - other.arr_[i];
+    }
+    return res;
 }
 
 Transition::Transition(std::string id, std::string label, Multiset before, Multiset after)
@@ -94,6 +100,11 @@ Transition::Transition(std::string id, std::string label, Multiset before, Multi
       id(std::move(id)),
       before(std::move(before)),
       after(std::move(after)) {
+}
+std::string Transition::ToString() const {
+    std::stringstream builder;
+    builder << id << ", " << label << ", " << after.Difference(before).ToString();
+    return builder.str();
 }
 
 PetriNet::PetriNet(

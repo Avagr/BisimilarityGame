@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QApplication, QP
 from qt_material import apply_stylesheet
 
 from qtui.io.petri import read_net, read_resources, write_resources
-from qtui.widgets import show_message, create_label, QVLine, QHLine, create_table, get_file
+from qtui.widgetutils import show_message, create_label, QVLine, QHLine, create_table, get_file
 
 sep: str = os.path.sep
 
@@ -50,8 +50,6 @@ class MainWindow(QWidget):
         self.outer = QHBoxLayout()
         self.net: dict[str, dict] = {}
         self.place_num = 0
-        self.first_state = []
-        self.second_state = []
         self._net_loaded = False
         self.togglable_elements: List[QWidget] = []
         self.light_theme = True

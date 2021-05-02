@@ -19,8 +19,18 @@ public:
 
     bool operator==(const Multiset& other) const;
 
+    [[nodiscard]] Multiset Difference(const Multiset& other) const;
+
     static Multiset ReduceChild(const Multiset& intersect, const Multiset& other_second_rem,
                                 const Multiset& second_rem, const Multiset& first_rem);
+
+    /**
+     * Resets the multiset to zero
+     */
+    inline void Reset() {
+        power_ = 0;
+        std::fill(arr_.begin(), arr_.end(), 0);
+    }
 
     /**
      * Checks if the current multiset is a subset of a given one
@@ -78,13 +88,14 @@ struct Transition {
     Transition(std::string id, std::string label, Multiset before, Multiset after);
     std::string label, id;
     Multiset before, after;
+
+    [[nodiscard]] std::string ToString() const;
 };
 
 class PetriNet {
 public:
     explicit PetriNet(
-        const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>&
-            trans_list);
+        const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>& trans_list);
 
     std::map<std::string, std::vector<Transition*>> label_map;
     std::vector<std::unique_ptr<Transition>> transitions;

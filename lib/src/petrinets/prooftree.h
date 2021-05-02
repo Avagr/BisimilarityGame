@@ -14,7 +14,7 @@ using std::unique_ptr;
  */
 class ProofTree {
 public:
-    ProofTree(Multiset first, Multiset second, PetriNet* net);
+    ProofTree(Multiset first, Multiset second, PetriNet* net, bool record_basis);
 
     /**
      * Builds the proof tree
@@ -22,25 +22,7 @@ public:
      */
     bool CheckBisimilarity();
 
-    void PrintTree(const std::string& path) const {
-        std::ofstream out{path};
-        std::stack<std::pair<Node*, int>> pipe;
-        //        std::queue<std::pair<Node*, int>> pipe;
-        pipe.emplace(root_.get(), 0);
-        while (!pipe.empty()) {
-            auto x = pipe.top();
-            //            auto x = pipe.front();
-            pipe.pop();
-            for (int i = 0; i < x.second; ++i) {
-                out << '\t';
-            }
-            out << x.first->first.ToString() << ' ' << x.first->second.ToString() << '\n';
-            for (auto&& child : x.first->children) {
-                pipe.emplace(child.get(), x.second + 1);
-            }
-        }
-        out.close();
-    }
+    void PrintTree(std::basic_ofstream<char> output);
 
 private:
     /**
@@ -58,13 +40,12 @@ private:
 
         /**
          * Computes partial ordering for REDUCE
-         * @return true if the node is greater than the other, false if the node is lesser or
-         * incomparable
+         * @return true if this node is greater than the other, false otherwise
          */
-        bool PartialOrder(Multiset* other_first, Multiset* other_second, Multiset* this_intersect,
-                          Multiset* other_intersect, Multiset* this_first_rem,
-                          Multiset* this_second_rem, Multiset* other_first_rem,
-                          Multiset* other_second_rem) const;
+        bool GreaterThan(Multiset* other_first, Multiset* other_second, Multiset* this_intersect,
+                        Multiset* other_intersect, Multiset* this_first_rem,
+                        Multiset* this_second_rem, Multiset* other_first_rem,
+                        Multiset* other_second_rem) const;
 
         Node* parent = nullptr;
         Multiset first, second;
@@ -73,11 +54,31 @@ private:
         const Transition* delta_used = nullptr;
         const Transition* gamma_used = nullptr;
         int order_used = 0;  // 1 - rs, 0 - none, -1 - sr
+        int id = -1;
     };
 
+    /**
+     * Expand step of the algorithm
+     * @param node node to perform the step on
+     * @param depth depth of recursion
+     * @return bisimilarity for the resulting subtree
+     */
     bool Expand(Node* node, int depth);
 
+    /**
+     * Reduce step of the algorithm
+     * @param node node to perform the step on
+     * @param depth depth of recursion
+     * @return bisimilarity for the resulting subtree
+     */
     bool Reduce(Node* node, int depth);
+
+    /**
+     * Traverses the tree using Depth-First Search, recording nodes, edges and a basis, if required
+     * @param nodes nodes to collect
+     * @param edges edges to collect
+     */
+    void TreeTraversal(std::vector<Node*>* nodes, std::vector<std::pair<Node*, Node*>>* edges);
 
     /**
      * Finds a random delta0child of node (first, second)
@@ -90,6 +91,8 @@ private:
                                 const Multiset* second, int* counter, int rs_order);
 
     unique_ptr<Node> root_;
-
+    bool record_basis_ = false;
+    std::set<Node*> basis_;
     PetriNet* petri_net_;
+    bool success = false;
 };
