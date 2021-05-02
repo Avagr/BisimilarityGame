@@ -6,13 +6,14 @@ from .mainwindow import MainWindow
 
 
 def run(path: str):
-    app = QApplication([])
+    sys_argv = sys.argv
+    app = QApplication(sys_argv)
     _ = MainWindow(path)
     sys.exit(app.exec_())
 
 # import bisimilarity_checker
 #
-# from qtui.parsing.petri import read_net
+# from qtui.io.petri import read_net
 #
 # dat = read_net("../nets/test.pnml")
 # trans = []
