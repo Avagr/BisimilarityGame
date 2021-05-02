@@ -20,4 +20,4 @@ target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
 
 install(TARGETS _core DESTINATION .)
 
-add_executable(BisimilarityGame src/petrinets/petrinet.h src/petrinets/petrinet.cpp src/petrinets/prooftree.cpp src/petrinets/prooftree.h main.cpp)
+#add_executable(BisimilarityGame src/petrinets/petrinet.h src/petrinets/petrinet.cpp src/petrinets/prooftree.cpp src/petrinets/prooftree.h main.cpp)

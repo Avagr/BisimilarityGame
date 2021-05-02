@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/BisimilarityGame.iml" filepath="$PROJECT_DIR$/.idea/BisimilarityGame.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/bisimilarity_checker.iml" filepath="$PROJECT_DIR$/.idea/bisimilarity_checker.iml" />
     </modules>
   </component>
 </project>

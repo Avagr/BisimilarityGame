@@ -8,3 +8,4 @@ __pycache__/
 /lib/bisimilarity_checker.egg-info/
 /lib/src/bisimilarity_checker.egg-info/
 *.csv
+here.xml
