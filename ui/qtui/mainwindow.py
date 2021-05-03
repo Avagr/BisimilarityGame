@@ -6,11 +6,11 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QApplication, QPushButton, QMessageBox, QCheckBox,
-                             QTableWidgetItem, QTreeWidget)
+                             QTableWidgetItem, QTreeWidget, QHeaderView)
 from qt_material import apply_stylesheet
 
 from qtui.io.petri import read_net, read_resources, write_resources
-from qtui.io.tree import read_tree
+from qtui.io.tree import read_tree, read_basis
 from qtui.widgetutils import show_message, create_label, QVLine, QHLine, create_table, get_file, Checker, \
     populate_tree_view
 
@@ -63,8 +63,14 @@ class MainWindow(QWidget):
         """
         Initializes UI
         """
-        QtGui.QFontDatabase.addApplicationFont(self.base_path + sep + "Poppins" + sep + "Poppins-Regular.ttf")
-        QtGui.QFontDatabase.addApplicationFont(self.base_path + sep + "Poppins" + sep + "Poppins-LightItalic.ttf")
+        QtGui.QFontDatabase.addApplicationFont(
+            self.base_path + sep + 'fonts' + sep + "Poppins" + sep + "Poppins-Regular.ttf")
+        QtGui.QFontDatabase.addApplicationFont(
+            self.base_path + sep + 'fonts' + sep + "Poppins" + sep + "Poppins-LightItalic.ttf")
+        with open(self.base_path + sep + "stylesheets" + sep + "table_light.qml", 'r') as theme:
+            self.theme_light_table = "".join(theme.readlines())
+        with open(self.base_path + sep + "stylesheets" + sep + "table_dark.qml", 'r') as theme:
+            self.theme_dark_table = "".join(theme.readlines())
         self.setFont(QFont("Poppins-Regular", 13))
         self.init_layout()
         self.setLayout(self.outer)
@@ -72,7 +78,7 @@ class MainWindow(QWidget):
         self.resize(rec.width() * 2 // 3, rec.height() * 2 // 3)
         self.move(300, 150)
         self.setWindowTitle('Bisimilarity Checker')
-        self.setWindowIcon(QtGui.QIcon(self.base_path + sep + 'icons/icon.png'))
+        self.setWindowIcon(QtGui.QIcon(self.base_path + sep + 'icons' + sep + 'icon.png'))
         self.net_loaded = False
         self.show()
 
@@ -163,18 +169,11 @@ class MainWindow(QWidget):
 
         # Tree viewer layout
         right_layout.addWidget(create_label("Result tree viewer: ", font_size=15))
-        right_layout.addWidget(create_label("Move the headers to view the whole tree", font_size=10))
         self.tree_viewer = QTreeWidget()
         self.tree_viewer.setHeaderLabels(["ID", "FIRST", "SECOND", "STEP"])
         self.tree_viewer.setAlternatingRowColors(True)
-        self.tree_viewer.setStyleSheet("""  
-        QTreeView {alternate-background-color: #cfd8dc; background-color: #ffffff; show-decoration-selected: 0;}
-        QTreeView::branch {alternate-background-color: #cfd8dc; background-color: white;}
-        QTreeView::branch:open:has-children:!has-siblings,
-        QTreeView::branch:open:has-children:has-siblings {image: url(stylesheets/down_arrow.png);}
-        QTreeView::branch:has-children:!has-siblings:closed,
-        QTreeView::branch:closed:has-children:has-siblings {image: url(stylesheets/right_arrow.png);}
-        """)
+        self.tree_viewer.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.tree_viewer.setStyleSheet(self.theme_light_table)
         right_layout.addWidget(self.tree_viewer)
 
         self.outer.addLayout(left_layout)
@@ -185,8 +184,7 @@ class MainWindow(QWidget):
         """
         Method for handling net selection and importing
         """
-        # net_path = get_file("Petri Net Markup Language files (*.pnml)", self.base_path, read=True) todo
-        net_path = "/home/avagr/Course/Program/BisimilarityGame/nets/test.pnml"
+        net_path = get_file("Petri Net Markup Language files (*.pnml)", self.base_path, read=True)
         if not net_path:
             return
         try:
@@ -226,8 +224,7 @@ class MainWindow(QWidget):
         """
         Runs the algorithm itself after getting a path to save the tree to
         """
-        # tree_path = get_file("GraphML file (*.graphml)", self.base_path, read=False) todo
-        tree_path = "/home/avagr/Course/Program/BisimilarityGame/ui/here.xml"
+        tree_path = get_file("GraphML file (*.graphml)", self.base_path, read=False)
         if not tree_path:
             return
         if len(tree_path) < 9 or tree_path[-8:] != '.graphml':
@@ -259,6 +256,8 @@ class MainWindow(QWidget):
             self.status_label.setText("Bisimilarity not found")
             self.status_label.setStyleSheet("QLabel { color : red; }")
         basis = None
+        if self.checker.check_basis:
+            basis = read_basis(self.checker.path)
         populate_tree_view(read_tree(self.checker.path), self.tree_viewer, basis)
 
     def switch_theme(self):
@@ -267,10 +266,11 @@ class MainWindow(QWidget):
         """
         if self.light_theme:
             apply_stylesheet(self, self.base_path + sep + 'stylesheets' + sep + 'colors_dark.xml')
-            # todo change palettes
+            self.tree_viewer.setStyleSheet(self.theme_dark_table)
         else:
             apply_stylesheet(self, self.base_path + sep + 'stylesheets' + sep + 'colors_light.xml',
                              invert_secondary=True)
+            self.tree_viewer.setStyleSheet(self.theme_light_table)
         self.light_theme = not self.light_theme
 
 

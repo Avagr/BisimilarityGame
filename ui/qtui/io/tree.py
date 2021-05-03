@@ -10,14 +10,12 @@ class Node:
         self.first: list[str] = []
         self.second: list[str] = []
         self.terminal: str = "NOT"
-        self.reduced: bool = True
-        self.delta_id: str = ""
-        self.gamma_id: str = ""
+        self.reduced: str = "ROOT"
         self.direct_order: bool = True
 
     def to_list(self):
         return ["#" + self.id, '(' + ", ".join(self.first) + ')', '(' + ", ".join(self.second) + ')',
-                "REDUCE" if self.reduced else "EXPAND(" + self.delta_id + ", " + self.gamma_id + ")"]
+                self.reduced]
 
 
 def read_tree(path: str) -> Node:
@@ -39,11 +37,13 @@ def read_tree(path: str) -> Node:
         if 'terminal' in el.attributes:
             node.terminal = el.attributes['terminal'].value
         if 'delta' in el.attributes:
-            node.reduced = False
-            node.delta_id = el.attributes['delta'].value.split(', ')[0]
-            node.gamma_id = el.attributes['gamma'].value.split(', ')[0]
+            delta_id = el.attributes['delta'].value.split(', ')[0]
+            gamma_id = el.attributes['gamma'].value.split(', ')[0]
+            node.reduced = "EXPAND(" + delta_id + ", " + gamma_id + ")"
             if el.attributes['order'].value == "reverse":
                 node.direct_order = False
+        elif 'reduced' in el.attributes:
+            node.reduced = "REDUCE(#" + el.attributes['reduced'].value + ')'
         nodes[node_id] = node
 
     # Parsing edges

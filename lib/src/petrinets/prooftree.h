@@ -43,9 +43,9 @@ private:
          * @return true if this node is greater than the other, false otherwise
          */
         bool GreaterThan(Multiset* other_first, Multiset* other_second, Multiset* this_intersect,
-                        Multiset* other_intersect, Multiset* this_first_rem,
-                        Multiset* this_second_rem, Multiset* other_first_rem,
-                        Multiset* other_second_rem) const;
+                         Multiset* other_intersect, Multiset* this_first_rem,
+                         Multiset* this_second_rem, Multiset* other_first_rem,
+                         Multiset* other_second_rem) const;
 
         Node* parent = nullptr;
         Multiset first, second;
@@ -55,6 +55,7 @@ private:
         const Transition* gamma_used = nullptr;
         int order_used = 0;  // 1 - rs, 0 - none, -1 - sr
         int id = -1;
+        Node* reduced_parent = nullptr;
     };
 
     /**

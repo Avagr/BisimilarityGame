@@ -74,6 +74,7 @@ bool ProofTree::Reduce(Node* node, int depth) {
                     petri_net_->transitions, nullptr, nullptr, 0));
                 reduced = true;
                 node = node->children.back().get();
+                node->reduced_parent = parent;
                 break;
             }
             parent = parent->parent;
@@ -115,6 +116,8 @@ void ProofTree::PrintTree(std::basic_ofstream<char> output) {
             output << " delta=\"" << node->delta_used->ToString() << "\" gamma=\""
                    << node->gamma_used->ToString() << "\" order=\""
                    << (node->order_used > 0 ? "direct" : "reverse") << "\"";
+        } else if (node->reduced_parent != nullptr) {
+            output << " reduced=\"" << node->reduced_parent->id << "\"";
         }
         if (node->children.empty()) {
             output << " terminal=\"" << (node->first == node->second ? "SUCCESS" : "FAIL") << "\"";

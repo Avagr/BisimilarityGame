@@ -99,7 +99,15 @@ class Checker(QObject):
 
 
 def populate_tree_view(root: Node, tree: QTreeWidget, basis=None) -> None:
+    """
+    Populates a given tree view with a tree and optionally a basis
+    :param root: root of a tree
+    :param tree: tree view to populate
+    :param basis: basis of the
+    """
     root_item = QTreeWidgetItem(root.to_list())
+    for i in range(2):
+        root_item.setTextAlignment(i + 1, Qt.AlignCenter)
     stack: list[Tuple[Node, QTreeWidgetItem]] = [(root, root_item)]
 
     # Initializing brushes
@@ -112,6 +120,8 @@ def populate_tree_view(root: Node, tree: QTreeWidget, basis=None) -> None:
         cur, cur_item = stack.pop()
         for child in cur.children:
             item = QTreeWidgetItem(child.to_list())
+            for i in range(2):
+                item.setTextAlignment(i + 1, Qt.AlignCenter)
             cur_item.addChild(item)
             stack.append((child, item))
         if cur.terminal == "SUCCESS":
@@ -121,6 +131,18 @@ def populate_tree_view(root: Node, tree: QTreeWidget, basis=None) -> None:
 
     tree.clear()
     tree.addTopLevelItem(root_item)
+
+    if basis:
+        basis_root = QTreeWidgetItem(["Basis"])
+        for i in range(2):
+            basis_root.setTextAlignment(i + 1, Qt.AlignCenter)
+        for num, (first, second) in enumerate(basis):
+            child = QTreeWidgetItem(
+                ['#' + str(num), '(' + ", ".join(first) + ')', '(' + ", ".join(second) + ')', 'BASIS'])
+            for i in range(2):
+                child.setTextAlignment(i + 1, Qt.AlignCenter)
+            basis_root.addChild(child)
+        tree.addTopLevelItem(basis_root)
 
 
 class NumberDelegate(QItemDelegate):
