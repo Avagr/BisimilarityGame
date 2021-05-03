@@ -1,9 +1,13 @@
+from typing import Tuple
+
 import bisimilarity_checker
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, pyqtSignal, QObject, pyqtSlot
-from PyQt5.QtGui import QFont, QIntValidator
+from PyQt5.QtGui import QFont, QIntValidator, QBrush, QColor
 from PyQt5.QtWidgets import QMessageBox, QLabel, QFrame, QTableWidget, QItemDelegate, QWidget, QStyleOptionViewItem, \
-    QLineEdit, QFileDialog
+    QLineEdit, QFileDialog, QTreeWidget, QTreeWidgetItem
+
+from qtui.io.tree import Node
 
 
 def show_message(icon: QMessageBox.Icon, title: str, text: str) -> None:
@@ -90,7 +94,33 @@ class Checker(QObject):
         self.result = bisimilarity_checker.check_bisimilarity(self.r_res, self.s_res, self.transitions,
                                                               self.check_basis,
                                                               self.path)
+        # noinspection PyUnresolvedReferences
         self.finished.emit()
+
+
+def populate_tree_view(root: Node, tree: QTreeWidget, basis=None) -> None:
+    root_item = QTreeWidgetItem(root.to_list())
+    stack: list[Tuple[Node, QTreeWidgetItem]] = [(root, root_item)]
+
+    # Initializing brushes
+    success = QBrush()
+    fail = QBrush()
+    success.setColor(QColor(Qt.green))
+    fail.setColor(QColor(Qt.red))
+
+    while len(stack) > 0:
+        cur, cur_item = stack.pop()
+        for child in cur.children:
+            item = QTreeWidgetItem(child.to_list())
+            cur_item.addChild(item)
+            stack.append((child, item))
+        if cur.terminal == "SUCCESS":
+            cur_item.setBackground(0, success)
+        elif cur.terminal == "FAIL":
+            cur_item.setBackground(0, fail)
+
+    tree.clear()
+    tree.addTopLevelItem(root_item)
 
 
 class NumberDelegate(QItemDelegate):
