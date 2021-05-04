@@ -133,8 +133,10 @@ void ProofTree::PrintTree(std::basic_ofstream<char> output) {
     if (success && record_basis_) {
         output << "<basis>";
         for (auto&& node : basis_) {
-            output << "<pair first=\"" << node->first.ToString() << "\" second=\""
-                   << node->second.ToString() << "\"/>";
+            if (!(node->first == node->second)) {
+                output << "<pair first=\"" << node->first.ToString() << "\" second=\""
+                       << node->second.ToString() << "\"/>";
+            }
         }
         output << "</basis>";
     }
