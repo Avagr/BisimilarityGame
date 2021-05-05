@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include <fstream>
 #include <stack>
-#include <queue>
+#include <unordered_map>
 #include "petrinet.h"
 
 using std::unique_ptr;
@@ -50,7 +50,7 @@ private:
         Node* parent = nullptr;
         Multiset first, second;
         std::vector<unique_ptr<Node>> children;
-        std::map<Transition*, int> rs_used, sr_used;
+        std::unordered_map<Transition*, int> rs_used, sr_used;
         const Transition* delta_used = nullptr;
         const Transition* gamma_used = nullptr;
         int order_used = 0;  // 1 - rs, 0 - none, -1 - sr
@@ -93,7 +93,7 @@ private:
 
     unique_ptr<Node> root_;
     bool record_basis_ = false;
-    std::set<Node*> basis_;
+    std::unordered_set<Node*> basis_;
     PetriNet* petri_net_;
     bool success = false;
 };

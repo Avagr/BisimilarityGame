@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <unordered_map>
 
 class Transition;
 
@@ -95,9 +96,10 @@ struct Transition {
 class PetriNet {
 public:
     explicit PetriNet(
-        const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>& trans_list);
+        const std::vector<std::tuple<std::string, std::string, std::vector<int>, std::vector<int>>>&
+            trans_list);
 
-    std::map<std::string, std::vector<Transition*>> label_map;
+    std::unordered_map<std::string, std::vector<Transition*>> label_map;
     std::vector<std::unique_ptr<Transition>> transitions;
 
     [[nodiscard]] size_t GetPlaceNum() const;

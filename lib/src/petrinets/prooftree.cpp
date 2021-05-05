@@ -146,7 +146,7 @@ void ProofTree::PrintTree(std::basic_ofstream<char> output) {
 void ProofTree::TreeTraversal(std::vector<Node*>* nodes,
                               std::vector<std::pair<Node*, Node*>>* edges) {
     std::stack<Node*> stack;
-    std::set<Node*> to_remove;
+    std::unordered_set<Node*> to_remove;
     size_t n = petri_net_->GetPlaceNum();
     Multiset m1(n), m2(n), m3(n), m4(n), m5(n), m6(n);
     stack.emplace(root_.get());
