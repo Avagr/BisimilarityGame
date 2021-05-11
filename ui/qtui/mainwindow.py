@@ -9,12 +9,11 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QApplication, QP
                              QTableWidgetItem, QTreeWidget, QHeaderView)
 from qt_material import apply_stylesheet
 
+from qtui.infowindow import InfoWindow
 from qtui.io.petri import read_net, read_resources, write_resources
 from qtui.io.tree import read_tree, read_basis
 from qtui.widgetutils import show_message, create_label, QVLine, QHLine, create_table, get_file, Checker, \
     populate_tree_view
-
-sep: str = os.path.sep
 
 
 class MainWindow(QWidget):
@@ -56,29 +55,24 @@ class MainWindow(QWidget):
         self.togglable_elements: List[QWidget] = []
         self.light_theme = True
         sys.excepthook = error_handling
-        apply_stylesheet(self, path + sep + 'stylesheets' + sep + 'colors_light.xml', invert_secondary=True)
+        apply_stylesheet(self, os.path.join(path, 'stylesheets', 'colors_light.xml'), invert_secondary=True)
         self.init_ui()
 
     def init_ui(self):
         """
         Initializes UI
         """
-        QtGui.QFontDatabase.addApplicationFont(
-            self.base_path + sep + 'fonts' + sep + "Poppins" + sep + "Poppins-Regular.ttf")
-        QtGui.QFontDatabase.addApplicationFont(
-            self.base_path + sep + 'fonts' + sep + "Poppins" + sep + "Poppins-LightItalic.ttf")
-        with open(self.base_path + sep + "stylesheets" + sep + "table_light.qml", 'r') as theme:
+        with open(os.path.join(self.base_path, "stylesheets", "table_light.qml"), 'r') as theme:
             self.theme_light_table = "".join(theme.readlines())
-        with open(self.base_path + sep + "stylesheets" + sep + "table_dark.qml", 'r') as theme:
+        with open(os.path.join(self.base_path, "stylesheets", "table_dark.qml"), 'r') as theme:
             self.theme_dark_table = "".join(theme.readlines())
-        self.setFont(QFont("Poppins-Regular", 13))
         self.init_layout()
         self.setLayout(self.outer)
         rec = QApplication.desktop().screenGeometry()
         self.resize(rec.width() * 2 // 3, rec.height() * 2 // 3)
         self.move(300, 150)
         self.setWindowTitle('Bisimilarity Checker')
-        self.setWindowIcon(QtGui.QIcon(self.base_path + sep + 'icons' + sep + 'icon.png'))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(self.base_path, 'icons', 'icon.png')))
         self.net_loaded = False
         self.show()
 
@@ -152,7 +146,7 @@ class MainWindow(QWidget):
         # Bottom buttons
         info_layout = QHBoxLayout()
         info_button = QPushButton("Information")
-        # todo bind
+        info_button.clicked.connect(self.view_info)
         info_layout.addWidget(info_button)
         theme_button = QPushButton("Switch theme")
         theme_button.clicked.connect(self.switch_theme)
@@ -179,6 +173,10 @@ class MainWindow(QWidget):
         self.outer.addLayout(left_layout)
         self.outer.addWidget(QVLine())
         self.outer.addLayout(right_layout)
+
+    def view_info(self):
+        window = InfoWindow(self)
+        window.exec_()
 
     def select_net(self):
         """
@@ -265,10 +263,10 @@ class MainWindow(QWidget):
         Switches application theme from light to dark and vise-versa
         """
         if self.light_theme:
-            apply_stylesheet(self, self.base_path + sep + 'stylesheets' + sep + 'colors_dark.xml')
+            apply_stylesheet(self, os.path.join(self.base_path, 'stylesheets', 'colors_dark.xml'))
             self.tree_viewer.setStyleSheet(self.theme_dark_table)
         else:
-            apply_stylesheet(self, self.base_path + sep + 'stylesheets' + sep + 'colors_light.xml',
+            apply_stylesheet(self, os.path.join(self.base_path, 'stylesheets', 'colors_light.xml'),
                              invert_secondary=True)
             self.tree_viewer.setStyleSheet(self.theme_light_table)
         self.light_theme = not self.light_theme

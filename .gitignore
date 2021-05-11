@@ -9,3 +9,8 @@ __pycache__/
 /lib/src/bisimilarity_checker.egg-info/
 *.csv
 *.graphml
+/ui/dist/
+/ui/build/
+*.zip
+*.so.[012]
+*.so

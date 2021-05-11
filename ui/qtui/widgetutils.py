@@ -26,19 +26,18 @@ def show_message(icon: QMessageBox.Icon, title: str, text: str) -> None:
     dialog.exec_()
 
 
-def create_label(text: str, font_size: int = 15, font_name: str = "Poppins-Regular",
+def create_label(text: str, font_size: int = 15,
                  alignment: str = Qt.AlignCenter) -> QLabel:
     """
     Creates a lable in a single line with fixed params
     :param text: text of the label
     :param font_size: font size
-    :param font_name: name of the font (mus be imported beforehand)
     :param alignment: label alignment
     :return: created label
     """
     label = QLabel(text)
     label.setAlignment(alignment)
-    label.setFont(QFont(font_name, font_size))
+    label.setFont(QFont("Poppins", font_size))
     return label
 
 
