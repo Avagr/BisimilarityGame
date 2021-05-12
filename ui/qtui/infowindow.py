@@ -23,7 +23,7 @@ class InfoWindow(QDialog):
         layout.addWidget(create_label("Information", font_size=20))
         text = QTextEdit()
         text.setReadOnly(True)
-        with open(os.path.join(self.parent.base_path, 'README.md'), 'r') as file:
+        with open(os.path.join(self.parent.base_path, 'instructions.md'), 'r') as file:
             markdown = ''.join(file.readlines())
         text.setMarkdown(markdown)
         text.setStyleSheet("background-color: #ffffff;")
