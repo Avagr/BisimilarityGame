@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.17)
 project(bisimilarity_checker VERSION "1.0")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-O3")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "-O3")
+else()
+    set(CMAKE_CXX_FLAGS "/Ox")
+endif()
 
 if (SKBUILD)
     execute_process(

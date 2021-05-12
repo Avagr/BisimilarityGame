@@ -1,5 +1,6 @@
 #include "petrinet.h"
 #include <utility>
+#include <algorithm>
 
 Multiset::Multiset(size_t place_num) : arr_(place_num) {
 }
