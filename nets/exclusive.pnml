@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+    <net type="http://www.pnml.org/version-2009/grammar/ptnet">
+        <place id="x1"/>
+        <place id="x2"/>
+        <place id="x3"/>
+        <place id="x4"/>
+        <place id="y1"/>
+        <place id="y2"/>
+        <place id="y3"/>
+        <place id="y4"/>
+        <place id="z"/>
+        <transition id="a1">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="a2">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="a3">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="a4">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="a5">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="a6">
+            <name>
+                <text>a</text>
+            </name>
+        </transition>
+        <transition id="b1">
+            <name>
+                <text>b</text>
+            </name>
+        </transition>
+        <transition id="b2">
+            <name>
+                <text>b</text>
+            </name>
+        </transition>
+        <transition id="b3">
+            <name>
+                <text>b</text>
+            </name>
+        </transition>
+        <transition id="b4">
+            <name>
+                <text>b</text>
+            </name>
+        </transition>
+        <transition id="c1">
+            <name>
+                <text>c</text>
+            </name>
+        </transition>
+        <transition id="c2">
+            <name>
+                <text>c</text>
+            </name>
+        </transition>
+        <arc source="x1" target="a1"/>
+        <arc source="x1" target="a2"/>
+        <arc source="x1" target="a3"/>
+        <arc source="y1" target="a4"/>
+        <arc source="y1" target="a5"/>
+        <arc source="y1" target="a6"/>
+        <arc source="a2" target="x4"/>
+        <arc source="a3" target="x2"/>
+        <arc source="a4" target="y2"/>
+        <arc source="a5" target="y4"/>
+        <arc source="x4" target="b1"/>
+        <arc source="x2" target="b2"/>
+        <arc source="y2" target="b3"/>
+        <arc source="y4" target="b4"/>
+        <arc source="b2" target="x3"/>
+        <arc source="b3" target="y3"/>
+        <arc source="x3" target="c1"/>
+        <arc source="y3" target="c2"/>
+        <arc source="z" target="b2"/>
+        <arc source="z" target="c2"/>
+    </net>
+</pnml>
